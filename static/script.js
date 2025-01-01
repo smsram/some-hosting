@@ -14,33 +14,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to handle sending a message
     async function sendMessage() {
-        const message = userInput.value.trim();
-        if (!message) return;
+    const message = userInput.value.trim();
+    if (!message) return;
 
-        addMessage(message, true); // Add user message
-        userInput.value = ''; // Clear input
+    addMessage(message, true); // Add user message
+    userInput.value = ''; // Clear input
 
-        try {
-            // Send request to backend
-            const response = await fetch('http://127.0.0.1:5000/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ prompt: message }),
-            });
+    try {
+        // Determine the backend URL (use window.location.origin in production)
+        const backendUrl = window.location.origin + '/generate';  // This will adapt to production and local environments
+        
+        // Send request to backend
+        const response = await fetch(backendUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt: message }),
+        });
 
-            const data = await response.json();
+        const data = await response.json();
 
-            if (response.ok) {
-                addMessage(data.reply, false); // Add bot reply
-            } else {
-                addMessage('Error: ' + (data.error || 'Something went wrong'), false);
-            }
-        } catch (error) {
-            addMessage('Error: ' + error.message, false);
+        if (response.ok) {
+            addMessage(data.reply, false); // Add bot reply
+        } else {
+            addMessage('Error: ' + (data.error || 'Something went wrong'), false);
         }
+    } catch (error) {
+        addMessage('Error: ' + error.message, false);
     }
+}
 
     // Event listeners
     sendButton.addEventListener('click', sendMessage);
