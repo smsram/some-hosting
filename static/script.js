@@ -33,7 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ prompt: message }),
         });
 
-        const data = await response.json();
+        const text = await response.text(); // Read the response as plain text first
+
+        // Try parsing the response as JSON
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            addMessage('Error: Invalid JSON response from server', false);
+            return;
+        }
 
         if (response.ok) {
             addMessage(data.reply, false); // Add bot reply
@@ -44,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage('Error: ' + error.message, false);
     }
 }
+
 
     // Event listeners
     sendButton.addEventListener('click', sendMessage);
