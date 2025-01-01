@@ -5,9 +5,9 @@ from flask_cors import CORS
 
 # Initialize Flask app and configure static files
 app = Flask(__name__, static_url_path='/static', static_folder='static')
-CORS(app)
+CORS(app)  # Enable CORS for all routes
 
-# Get the API key from environment variable
+# Get the API key from the environment variable
 api_key = os.getenv("GOOGLE_GENERATIVEAI_KEY")
 if api_key:
     genai.configure(api_key=api_key)
@@ -20,10 +20,21 @@ def generate():
     prompt = data.get('prompt', '')
 
     try:
+        # Attempt to generate content using Google Generative AI
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
+        
+        # Log the response from the model for debugging
+        print(f"Response from model: {response.text}")
+
+        # Return the generated reply as JSON
         return jsonify({'reply': response.text})
+
     except Exception as e:
+        # Log any errors that occur
+        print(f"Error: {e}")
+        
+        # Return an error message as JSON with a 500 status code
         return jsonify({'error': str(e)}), 500
 
 # Route to serve static files (HTML, CSS, JS)
