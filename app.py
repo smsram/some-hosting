@@ -16,25 +16,31 @@ else:
 
 @app.route('/generate', methods=['POST'])
 def generate():
+    # Ensure the request is JSON
+    if not request.is_json:
+        return jsonify({'error': 'Invalid request: JSON expected'}), 400
+
     data = request.get_json()
     prompt = data.get('prompt', '')
+
+    # Return an error if the prompt is empty
+    if not prompt:
+        return jsonify({'error': 'Prompt is required'}), 400
 
     try:
         # Attempt to generate content using Google Generative AI
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
         
-        # Log the response from the model for debugging
-        print(f"Response from model: {response.text}")
-
-        # Return the generated reply as JSON
-        return jsonify({'reply': response.text})
+        # Ensure the response has valid text
+        reply = getattr(response, 'text', 'No response generated.')
+        return jsonify({'reply': reply})
 
     except Exception as e:
-        # Log any errors that occur
+        # Log the error for debugging
         print(f"Error: {e}")
         
-        # Return an error message as JSON with a 500 status code
+        # Return a proper JSON error response
         return jsonify({'error': str(e)}), 500
 
 # Route to serve static files (HTML, CSS, JS)
